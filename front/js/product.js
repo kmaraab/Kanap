@@ -116,6 +116,43 @@ function getPriceProductAddToCart(product){
     return product.price;
 }
 
+//message d'erreur quantité incorrect
+function displayMessageErrorQuantity (){
+    let quantity = document.querySelector('.item__content__settings__quantity');
+    let messageError = document.createElement('p');
+    messageError.style.color = "yellow";
+    messageError.style.fontSize = "13px"
+    messageError.innerHTML = "veuillez s'il vous plait choisir une bonne quantité !";
+    
+    quantity.appendChild(messageError);
+}
+
+//message d'erreur couleur incorrect
+function displayMessageErrorColor (){
+    let color = document.querySelector('.item__content__settings__color');
+    let messageError = document.createElement('p');
+    messageError.style.color = "yellow";
+    messageError.style.fontSize = "13px"
+    messageError.innerHTML = "veuillez s'il vous plait choisir une bonne couleur !";
+    
+    color.appendChild(messageError);
+}
+
+//message de confirmation d'ajout au panier
+function displayMessageSuccessAddToCart (){
+    let intemContent = document.querySelector('.item__content');
+    let SuccessMessage = document.createElement('p');
+    SuccessMessage.style.backgroundColor = "green";
+    SuccessMessage.style.color = "white";
+    SuccessMessage.style.padding = "10px";
+    SuccessMessage.style.marginTop = "5%";
+    SuccessMessage.style.borderRadius = "30px";
+    SuccessMessage.style.fontSize = "13px";
+    SuccessMessage.style.textAlign = "center";
+    SuccessMessage.innerHTML = "votre article a été ajouté avec succès au panier !";
+    
+    intemContent.appendChild(SuccessMessage);
+}
 
 //ajout d'un produit dans le local storage
 function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart, priceProductAddToCart){
@@ -130,6 +167,11 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
             event.stopPropagation();
         });
         let colorSelect = getColor.value;
+        //verifie si une bonne couleur est selectionné sinon affiche un message d'erreur
+        if(colorSelect === "--SVP, choisissez une couleur --" || colorSelect=== ""){
+            displayMessageErrorColor ();
+            return false;
+        }
         
 
         // ecoute la modification de la qauntité
@@ -140,6 +182,13 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
             event.stopPropagation();
         });
         let quantityValue = getQuantity.value;
+        //verifie si une bonne quantite est saisie sinon affiche un message d'erreur
+        const termQuantityAccept = /^[1-9]\d*$/; //regex sur les nombres reel different de 0
+        let verifQuantity = termQuantityAccept.test(quantityValue);
+        if(verifQuantity == false){
+            displayMessageErrorQuantity ();
+            return false;
+        }
 
 
         // création d'un nouveau objet de produit à ajouter au panier
@@ -157,6 +206,9 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
             let stringCart = JSON.stringify(cart);
             localStorage.setItem("Cart", stringCart);
           }
+        
+        //affiche un message de confirmation d'ajout au panier
+        displayMessageSuccessAddToCart ();
         event.stopPropagation;
     })
 }
