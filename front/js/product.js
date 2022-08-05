@@ -127,6 +127,8 @@ function displayMessageErrorQuantity (){
     quantity.appendChild(messageError);
 }
 
+
+
 //message d'erreur couleur incorrect
 function displayMessageErrorColor (){
     let color = document.querySelector('.item__content__settings__color');
@@ -137,6 +139,8 @@ function displayMessageErrorColor (){
     
     color.appendChild(messageError);
 }
+
+
 
 //message de confirmation d'ajout au panier
 function displayMessageSuccessAddToCart (){
@@ -153,6 +157,42 @@ function displayMessageSuccessAddToCart (){
     
     intemContent.appendChild(SuccessMessage);
 }
+
+
+
+//vérification si le produit à ajouter existe déjà dans le panier incrémenter du cou sa quantité
+function checkProductExistes (cart, product){
+    cart = JSON.parse(localStorage.getItem("Cart"));
+    for(let i = 0; i < cart.length; i++){
+        let productId = cart[i].id;
+        let productColor = cart[i].color;
+        let productPrice = parseInt(cart[i].price);
+        let productQuantity = parseInt(cart[i].quantity);
+        let productTotal = parseInt(cart[i].total);
+
+
+        let idProductAdd = product.id;
+        let colorProductAdd = product.color;
+        let quantityProductAdd = parseInt(product.quantity);
+
+        if(productId === idProductAdd && productColor === colorProductAdd){
+            productQuantity = productQuantity + quantityProductAdd;
+            cart[i].quantity = productQuantity;
+
+            productTotal = productPrice*productQuantity;
+            cart[i].total = productTotal;
+            
+            let stringCart = JSON.stringify(cart);
+            localStorage.setItem("Cart", stringCart);
+            return
+        }
+    }
+    cart.push(product);
+    let stringCart = JSON.stringify(cart);
+    localStorage.setItem("Cart", stringCart);
+}
+
+
 
 //ajout d'un produit dans le local storage
 function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart, priceProductAddToCart){
@@ -196,10 +236,7 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
         
         //verif s'il y'a des articles dans le panier on les recupère avant d'ajouter le nouveau
         if(localStorage.getItem("Cart")){
-            cart = JSON.parse(localStorage.getItem("Cart"));
-            cart.push(productAddToCart);
-            let stringCart = JSON.stringify(cart);
-            localStorage.setItem("Cart", stringCart);
+            checkProductExistes (cart, productAddToCart);
           }
           else{
             cart.push(productAddToCart);
