@@ -1,5 +1,4 @@
-const cart = JSON.parse(localStorage.getItem("Cart"));
-console.log(cart);
+let cart = JSON.parse(localStorage.getItem("Cart"));
 let cartItems = document.getElementById('cart__items');
 
 
@@ -55,6 +54,7 @@ for(let i = 0; i < cart.length; i++){
                      let productQuantityValue = document.createElement('input');
                          productQuantityValue.type = "number";
                          productQuantityValue.classList.add('itemQuantity');
+                         productQuantityValue.id = "itemQuantityId" + i;
                          productQuantityValue.name = "itemQuantity";
                          productQuantityValue.min = "1";
                          productQuantityValue.max = "100";
@@ -67,6 +67,7 @@ for(let i = 0; i < cart.length; i++){
 
                      let deleteItem = document.createElement('p');
                          deleteItem.classList.add('deleteItem');
+                         deleteItem.id = "deleteItem" + i;
                          deleteItem.innerText = "Supprimer"
                          cartItemContentSettingsDelete.appendChild(deleteItem);
 
@@ -74,6 +75,10 @@ for(let i = 0; i < cart.length; i++){
 }
 
 
+
+
+
+// calcul du totale de la quantité et du prix
 let totalQuantity = 0;
 let totalPrice = 0;
 for(let i = 0; i < cart.length; i++){
@@ -81,4 +86,74 @@ for(let i = 0; i < cart.length; i++){
     totalPrice = totalPrice + cart[i].total;
     document.getElementById('totalQuantity').innerText = totalQuantity;
     document.getElementById('totalPrice').innerText = totalPrice;
+}
+
+
+
+
+
+// le bouton mettre à jour le panier
+let updateCartContent = document.createElement('p');
+    updateCartContent.style.textAlign = "center"
+    document.querySelector('.cart__price').appendChild(updateCartContent);
+
+let updateCart = document.createElement('button');
+    updateCart.innerText = "Mettre à jour le panier";
+    updateCart.style.background = "transparent";
+    updateCart.style.color = "white";
+    updateCart.style.fontSize = "20px";
+    updateCart.style.padding = "15px";
+    updateCart.style.borderColor = "white";
+    updateCart.style.borderRadius = "30px";
+    updateCart.style.cursor = "pointer"
+
+    updateCartContent.appendChild(updateCart);
+
+    
+
+
+// gestion de la modification de la quantité dans le panier
+updateCart.addEventListener('click', function(event){
+
+    for(let i = 0; i < cart.length; i++){
+        let quantityId = "itemQuantityId" + i;
+        document.getElementById(quantityId).addEventListener('change', function(event){
+            let newQuantity = document.getElementById(quantityId).value;
+            document.getElementById(quantityId).value = newQuantity;
+            event.stopPropagation();        
+        })
+        cart[i].quantity = document.getElementById(quantityId).value;
+        cart[i].total = cart[i].quantity*cart[i].price;
+    }
+    localStorage.setItem("Cart", JSON.stringify(cart));
+    document.location.reload();
+    event.stopPropagation();
+})
+
+
+
+
+
+// gestion de la suppression d'un produit dans le panier
+for (let i = 0; i < cart.length; i++){
+    let deleteButton = document.getElementById("deleteItem" + i);
+    deleteButton.addEventListener('click', function(event){
+        if(cart.length === 1){
+            localStorage.removeItem("Cart");
+            document.location.reload();
+        }
+        else{
+            cart[i] = null;
+            let newCart = [];
+            for( let j = 0; j < cart.length; j++){
+                if(cart[j] != null){
+                    newCart.push(cart[j]);
+                }
+            }
+            cart = newCart; 
+            localStorage.setItem("Cart", JSON.stringify(cart));
+        }
+        event.stopPropagation();
+        document.location.reload();
+    })
 }

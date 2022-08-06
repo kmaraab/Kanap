@@ -116,7 +116,7 @@ function getPriceProductAddToCart(product){
     return product.price;
 }
 
-//message d'erreur quantité incorrect
+//message d'erreur quantité incorrecte
 function displayMessageErrorQuantity (){
     let quantity = document.querySelector('.item__content__settings__quantity');
     let messageError = document.createElement('p');
@@ -129,7 +129,7 @@ function displayMessageErrorQuantity (){
 
 
 
-//message d'erreur couleur incorrect
+//message d'erreur couleur incorrecte
 function displayMessageErrorColor (){
     let color = document.querySelector('.item__content__settings__color');
     let messageError = document.createElement('p');
@@ -160,7 +160,7 @@ function displayMessageSuccessAddToCart (){
 
 
 
-//vérification si le produit à ajouter existe déjà dans le panier incrémenter du cou sa quantité
+//vérification si le produit à ajouter existe déjà dans le panier incrémenter du coup sa quantité
 function checkProductExistes (cart, product){
     cart = JSON.parse(localStorage.getItem("Cart"));
     for(let i = 0; i < cart.length; i++){
