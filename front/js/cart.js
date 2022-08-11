@@ -1,6 +1,15 @@
-let cart = JSON.parse(localStorage.getItem("Cart"));
+// Vérification si le localstorage n'est pas vide
+let cart;
+function verifLocalStorage(){
+    if (localStorage.getItem("Cart")){
+        cart = JSON.parse(localStorage.getItem("Cart"));
+    }
+    else{
+        cart = [];
+    }
+}
+verifLocalStorage();
 let cartItems = document.getElementById('cart__items');
-
 
 //affichage des produits dans le panier
 for(let i = 0; i < cart.length; i++){
@@ -73,7 +82,6 @@ for(let i = 0; i < cart.length; i++){
 
     cartItems.appendChild(article);
 }
-
 
 
 
@@ -157,3 +165,166 @@ for (let i = 0; i < cart.length; i++){
         document.location.reload();
     })
 }
+
+
+///////////////////////// Validation du formulaire de contact ////////////////////
+
+// Expréssions régulières pour contrôler le formulaire
+const regExpText = /^[A-Za-zÀ-ÖØ-öø-ÿ\-\'\ ]{2,30}$/;
+const regExpAddress = /^[0-9A-Za-zÀ-ÖØ-öø-ÿ\-\'\ ]{5,30}$/;
+const regExpEmail = /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/i;
+
+
+// input formulaire et message d'erreur à afficher 
+let firstName = document.getElementById('firstName');
+let firstNameErrorMsgPlace = document.getElementById('firstNameErrorMsg');
+let firstNameErrorMsg = "veuillez saisir un nom correct";
+
+let lastName = document.getElementById('lastName');
+let lastNameErrorMsgPlace = document.getElementById('lastNameErrorMsg');
+let lastNameErrorMsg = "veuillez saisir un prenom correct";
+
+let address = document.getElementById('address');
+let addressErrorMsgPlace = document.getElementById('addressErrorMsg');
+let addressErrorMsg = "veuillez saisir une adresse correcte";
+
+let city = document.getElementById('city');
+let cityErrorMsgPlace = document.getElementById('cityErrorMsg');
+let cityErrorMsg = "veuillez saisir un nom de ville correct";
+
+let email = document.getElementById('email');
+let emailErrorMsgPlace = document.getElementById('emailErrorMsg');
+let emailErrorMsg = "veuillez saisir une adresse mail correcte";
+
+
+// ecoute et affichage d'un message d'erreur si le format entrée dans l'input est incorrect
+let errorsInput = []; // stock un msg d'erreur si la valeur d'un input est incorrecte
+function validInput (input, regExp, errorMessagePlace, errorMsg){
+    input.addEventListener('change', function(event){
+        let regexpTest = regExp.test(input.value);
+        if(regexpTest === false){
+            errorMessagePlace.innerHTML = errorMsg;
+            errorsInput.push(errorMsg);
+        }
+        else{
+            errorMessagePlace.innerHTML = "";
+            errorsInput = errorsInput.filter(id => id != errorMsg);
+        }
+    })
+}
+
+validInput(firstName, regExpText, firstNameErrorMsgPlace, firstNameErrorMsg); 
+validInput(lastName, regExpText, lastNameErrorMsgPlace, lastNameErrorMsg);
+validInput(address, regExpAddress, addressErrorMsgPlace, addressErrorMsg);
+validInput(city, regExpText, cityErrorMsgPlace, cityErrorMsg);
+validInput(email, regExpEmail, emailErrorMsgPlace, emailErrorMsg);
+
+
+
+
+//////////////////// Envoi de la commande ///////////////////////
+
+// classe pour générer l'objet contact
+class contactInfo {
+    constructor(firstName, lastName, address, city, email){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.city = city;
+        this.email = email;
+    }
+}
+
+
+
+// message d'erreur commande invalide
+function errorMsgOrder (errorMsgValue){
+    let cartOrder = document.querySelector('.cart');
+    let errorMsg = document.createElement('p');
+    errorMsg.classList.add("errorInputValue");
+    errorMsg.style.color = "yellow";
+    errorMsg.style.textAlign = "center";
+    errorMsg.style.fontSize = "1rem"
+    errorMsg.innerHTML = errorMsgValue;
+    cartOrder.appendChild(errorMsg);
+}
+
+
+
+
+// Validation des informations de commande à envoyer
+function validOrder(){
+    // verif si le panier n'est pas vide
+    if(cart.length === 0){
+        let cartOrderFormSubmit = document.getElementById('order');
+            cartOrderFormSubmit.style.display = "none";
+
+            errorMsgOrder('Impossible de passer une commande, votre panier est vide ! <br> <a href=../html/index.html> retour à la boutique </a>');
+    }
+
+    // verif des valeurs saisies dans le formulaire
+    else{
+        document.querySelector('.cart__order__form').addEventListener("change", function(event){
+            if(errorsInput.length > 0){
+                event.stopPropagation();
+                let cartOrderFormSubmit = document.getElementById('order');
+                    cartOrderFormSubmit.style.display = "none";
+                if(document.querySelector('.errorInputValue')){
+                    return
+                }
+                else{
+                    errorMsgOrder ('Impossible de passer une commande, un ou plusieurs champ du formulaire est incorrect');  
+                } 
+            }
+            else{
+                let cartOrder = document.querySelector('.cart');
+                cartOrder.removeChild(document.querySelector('.errorInputValue'));
+                let cartOrderFormSubmit = document.getElementById('order');
+                    cartOrderFormSubmit.style.display = "block";
+            }
+        })   
+    }    
+}
+
+validOrder();
+
+
+
+
+// Envoi de la commande
+let submitOrder = document.querySelector('.cart__order__form');
+submitOrder.addEventListener("submit", function(event){
+    event.preventDefault();
+
+    // génère l'objet contact à envoyer à l'API
+    let contact = new contactInfo(firstName.value, lastName.value, address.value, city.value, email.value);
+    
+    // génère l'ID des produits dans le panier
+    let products = [];
+        for(let i = 0; i < cart.length; i++){
+        products.push(cart[i].id);
+    }
+
+    // La requête POST envoyer
+    fetch("http://localhost:3000/api/products/order", {  
+        method: "POST",
+        headers: {
+            'Accept': 'application/json', 
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({contact, products})
+    })
+    .then(function (res) {
+        if(res.ok){
+            return res.json();
+        }
+    })
+    .then (function(value){
+        localStorage.clear();
+        let idOrder = value.orderId;
+        document.location.href = "../html/confirmation.html" + "?id=" + idOrder;
+    })
+    .catch(function(error){
+        console.log(error);
+    })
+})
