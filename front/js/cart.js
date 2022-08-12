@@ -262,7 +262,9 @@ function validOrder(){
             }
             else{
                 let cartOrder = document.querySelector('.cart');
-                cartOrder.removeChild(document.querySelector('.errorInputValue'));
+                if(document.querySelector('.errorInputValue')){
+                    cartOrder.removeChild(document.querySelector('.errorInputValue'));
+                }
                 let cartOrderFormSubmit = document.getElementById('order');
                     cartOrderFormSubmit.style.display = "block";
             }
