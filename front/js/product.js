@@ -118,44 +118,63 @@ function getPriceProductAddToCart(product){
 
 //message d'erreur quantité incorrecte
 function displayMessageErrorQuantity (){
-    let quantity = document.querySelector('.item__content__settings__quantity');
-    let messageError = document.createElement('p');
-    messageError.style.color = "yellow";
-    messageError.style.fontSize = "13px"
-    messageError.innerHTML = "veuillez s'il vous plait choisir une bonne quantité !";
+
+    if(document.querySelector(".messageErrorQuantity")){
+        return
+    }
+    else{
+        let quantity = document.querySelector('.item__content__settings__quantity');
+        let messageError = document.createElement('p');
+        messageError.classList.add("messageErrorQuantity");
+        messageError.style.color = "yellow";
+        messageError.style.fontSize = "13px"
+        messageError.innerHTML = "veuillez s'il vous plait choisir une bonne quantité !";
     
-    quantity.appendChild(messageError);
+        quantity.appendChild(messageError);
+    }
 }
 
 
 
 //message d'erreur couleur incorrecte
 function displayMessageErrorColor (){
-    let color = document.querySelector('.item__content__settings__color');
-    let messageError = document.createElement('p');
-    messageError.style.color = "yellow";
-    messageError.style.fontSize = "13px"
-    messageError.innerHTML = "veuillez s'il vous plait choisir une bonne couleur !";
-    
-    color.appendChild(messageError);
+    if(document.querySelector(".messageErrorColor")){
+        return
+    }
+    else{
+        let color = document.querySelector('.item__content__settings__color');
+        let messageError = document.createElement('p');
+        messageError.classList.add("messageErrorColor");
+        messageError.style.color = "yellow";
+        messageError.style.fontSize = "13px"
+        messageError.innerHTML = "veuillez s'il vous plait choisir une bonne couleur !";
+        
+        color.appendChild(messageError);
+    }
 }
 
 
 
 //message de confirmation d'ajout au panier
 function displayMessageSuccessAddToCart (){
-    let intemContent = document.querySelector('.item__content');
-    let SuccessMessage = document.createElement('p');
-    SuccessMessage.style.backgroundColor = "green";
-    SuccessMessage.style.color = "white";
-    SuccessMessage.style.padding = "10px";
-    SuccessMessage.style.marginTop = "5%";
-    SuccessMessage.style.borderRadius = "30px";
-    SuccessMessage.style.fontSize = "13px";
-    SuccessMessage.style.textAlign = "center";
-    SuccessMessage.innerHTML = "votre article a été ajouté avec succès au panier !";
-    
-    intemContent.appendChild(SuccessMessage);
+    if(document.querySelector(".successMessage")){
+        return
+    }
+    else{
+        let intemContent = document.querySelector('.item__content');
+        let SuccessMessage = document.createElement('p');
+        SuccessMessage.classList.add("successMessage");
+        SuccessMessage.style.backgroundColor = "green";
+        SuccessMessage.style.color = "white";
+        SuccessMessage.style.padding = "10px";
+        SuccessMessage.style.marginTop = "5%";
+        SuccessMessage.style.borderRadius = "30px";
+        SuccessMessage.style.fontSize = "13px";
+        SuccessMessage.style.textAlign = "center";
+        SuccessMessage.innerHTML = "votre article a été ajouté avec succès au panier !";
+        
+        intemContent.appendChild(SuccessMessage);
+    }
 }
 
 
