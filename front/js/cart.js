@@ -63,7 +63,8 @@ for(let i = 0; i < cart.length; i++){
                      let productQuantityValue = document.createElement('input');
                          productQuantityValue.type = "number";
                          productQuantityValue.classList.add('itemQuantity');
-                         productQuantityValue.id = "itemQuantityId" + i;
+                         // ajout d'un id pour gerer la modification de la quantité dans le panier.
+                         productQuantityValue.id = "itemQuantityId" + i; 
                          productQuantityValue.name = "itemQuantity";
                          productQuantityValue.min = "1";
                          productQuantityValue.max = "100";
@@ -84,8 +85,6 @@ for(let i = 0; i < cart.length; i++){
 }
 
 
-
-
 // calcul du totale de la quantité et du prix
 let totalQuantity = 0;
 let totalPrice = 0;
@@ -98,45 +97,30 @@ for(let i = 0; i < cart.length; i++){
 
 
 
-
-
-// le bouton mettre à jour le panier
-let updateCartContent = document.createElement('p');
-    updateCartContent.style.textAlign = "center"
-    document.querySelector('.cart__price').appendChild(updateCartContent);
-
-let updateCart = document.createElement('button');
-    updateCart.innerText = "Mettre à jour le panier";
-    updateCart.style.background = "transparent";
-    updateCart.style.color = "white";
-    updateCart.style.fontSize = "20px";
-    updateCart.style.padding = "15px";
-    updateCart.style.borderColor = "white";
-    updateCart.style.borderRadius = "30px";
-    updateCart.style.cursor = "pointer"
-
-    updateCartContent.appendChild(updateCart);
-
-    
-
-
 // gestion de la modification de la quantité dans le panier
-updateCart.addEventListener('click', function(event){
-
+if (localStorage.getItem("Cart")){
     for(let i = 0; i < cart.length; i++){
         let quantityId = "itemQuantityId" + i;
-        document.getElementById(quantityId).addEventListener('change', function(event){
-            let newQuantity = document.getElementById(quantityId).value;
-            document.getElementById(quantityId).value = newQuantity;
-            event.stopPropagation();        
-        })
-        cart[i].quantity = document.getElementById(quantityId).value;
-        cart[i].total = cart[i].quantity*cart[i].price;
+            document.getElementById(quantityId).addEventListener('change', function(event){
+                let newQuantity = document.getElementById(quantityId).value;
+                document.getElementById(quantityId).value = newQuantity;
+                cart[i].quantity = document.getElementById(quantityId).value;
+                cart[i].total = cart[i].quantity*cart[i].price;
+
+
+                let totalQuantity = 0;
+                let totalPrice = 0;
+                for(let i = 0; i < cart.length; i++){
+                    totalQuantity = totalQuantity + parseInt(cart[i].quantity);
+                    totalPrice = totalPrice + cart[i].total;
+                    document.getElementById('totalQuantity').innerText = totalQuantity;
+                    document.getElementById('totalPrice').innerText = totalPrice;
+                }
+                localStorage.setItem("Cart", JSON.stringify(cart));
+                event.stopPropagation();        
+            })
     }
-    localStorage.setItem("Cart", JSON.stringify(cart));
-    document.location.reload();
-    event.stopPropagation();
-})
+}
 
 
 
