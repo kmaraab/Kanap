@@ -28,34 +28,34 @@ async function getProduct(){
 //insertion d'un produit et ses détails dans la page produit
 function addProductToProductPage(product){
     let imageProduct = document.createElement('img');
-                imageProduct.alt = product.altTxt;
-                imageProduct.src = product.imageUrl;
+    imageProduct.alt = product.altTxt;
+    imageProduct.src = product.imageUrl;
 
-            let nomProduct = product.name;
-            let prixProduct = product.price; 
-            let descrisptionProduct = product.description;
+    let nomProduct = product.name;
+    let prixProduct = product.price; 
+    let descrisptionProduct = product.description;
 
-            let colorsProduct = product.colors;
+    let colorsProduct = product.colors;
     let i = 0;
     while(i < colorsProduct.length){
         let color = document.createElement('option');
-            color.innerText = colorsProduct[i];
+        color.innerText = colorsProduct[i];
         document.getElementById('colors')
-            .appendChild(color);
+        .appendChild(color);
         i++;
     }
 
     document.querySelector(".item__img")
-        .appendChild(imageProduct);
+    .appendChild(imageProduct);
 
     document.getElementById('title')
-        .innerText = nomProduct;
+    .innerText = nomProduct;
     
     document.getElementById('price')
-        .innerText = prixProduct;
+    .innerText = prixProduct;
     
     document.getElementById('description')
-        .innerText = descrisptionProduct;
+    .innerText = descrisptionProduct;
 }
 
 
@@ -69,14 +69,12 @@ let cart = [];
 
 //classe de nouveau produit a ajouter au panier
 class addNewProductToCart {
-    constructor(id, urlImg, name, quantity, color, price, total){
+    constructor(id, urlImg, name, quantity, color){
         this.id = id;
         this.urlImg = urlImg;
         this.name = name;
         this.quantity = quantity;
         this.color = color;
-        this.price = price;
-        this.total = total;
     }
 }
 
@@ -87,8 +85,7 @@ class addNewProductToCart {
     let idProductAddToCart = await getIdProductAddToCart(product);
     let urlImgProductAddToCart = await getUrlImgProductAddToCart(product);
     let nameProductAddToCart = await getNameProductAddToCart(product);
-    let priceProductAddToCart = await getPriceProductAddToCart(product);
-    pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart, priceProductAddToCart);
+    pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart);
 })()
 
 
@@ -110,11 +107,6 @@ function getNameProductAddToCart(product){
     return product.name;
 }
 
-
-//récuperation du prix du produit
-function getPriceProductAddToCart(product){
-    return product.price;
-}
 
 //message d'erreur quantité incorrecte
 function displayMessageErrorQuantity (){
@@ -185,9 +177,7 @@ function checkProductExistes (cart, product){
     for(let i = 0; i < cart.length; i++){
         let productId = cart[i].id;
         let productColor = cart[i].color;
-        let productPrice = parseInt(cart[i].price);
         let productQuantity = parseInt(cart[i].quantity);
-        let productTotal = parseInt(cart[i].total);
 
 
         let idProductAdd = product.id;
@@ -197,9 +187,6 @@ function checkProductExistes (cart, product){
         if(productId === idProductAdd && productColor === colorProductAdd){
             productQuantity = productQuantity + quantityProductAdd;
             cart[i].quantity = productQuantity;
-
-            productTotal = productPrice*productQuantity;
-            cart[i].total = productTotal;
             
             let stringCart = JSON.stringify(cart);
             localStorage.setItem("Cart", stringCart);
@@ -214,7 +201,7 @@ function checkProductExistes (cart, product){
 
 
 //ajout d'un produit dans le local storage
-function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart, priceProductAddToCart){
+function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart){
     addToCart.addEventListener('click',function(event){
         
         
@@ -226,6 +213,7 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
             event.stopPropagation();
         });
         let colorSelect = getColor.value;
+
         //verifie si une bonne couleur est selectionné sinon affiche un message d'erreur
         if(colorSelect === "--SVP, choisissez une couleur --" || colorSelect=== ""){
             displayMessageErrorColor ();
@@ -241,6 +229,7 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
             event.stopPropagation();
         });
         let quantityValue = getQuantity.value;
+
         //verifie si une bonne quantite est saisie sinon affiche un message d'erreur
         const termQuantityAccept = /^[1-9]\d*$/; //regex sur les nombres reel different de 0
         let verifQuantity = termQuantityAccept.test(quantityValue);
@@ -251,17 +240,17 @@ function pressAddToCart(idProductAddToCart, urlImgProductAddToCart, nameProductA
 
 
         // création d'un nouveau objet de produit à ajouter au panier
-        let productAddToCart = new addNewProductToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart, quantityValue, colorSelect, priceProductAddToCart, quantityValue*priceProductAddToCart);
+        let productAddToCart = new addNewProductToCart(idProductAddToCart, urlImgProductAddToCart, nameProductAddToCart, quantityValue, colorSelect);
         
         //verif s'il y'a des articles dans le panier on les recupère avant d'ajouter le nouveau
         if(localStorage.getItem("Cart")){
             checkProductExistes (cart, productAddToCart);
           }
-          else{
+        else{
             cart.push(productAddToCart);
             let stringCart = JSON.stringify(cart);
             localStorage.setItem("Cart", stringCart);
-          }
+        }
         
         //affiche un message de confirmation d'ajout au panier
         displayMessageSuccessAddToCart ();
