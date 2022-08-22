@@ -277,7 +277,7 @@ function errorMsgOrder (errorMsgValue){
     errorMsg.classList.add("errorInputValue");
     errorMsg.style.color = "yellow";
     errorMsg.style.textAlign = "center";
-    errorMsg.style.fontSize = "1rem"
+    errorMsg.style.fontSize = "1rem";
     errorMsg.innerHTML = errorMsgValue;
     cartOrder.appendChild(errorMsg);
 }
@@ -287,35 +287,44 @@ function errorMsgOrder (errorMsgValue){
 
 // Validation des informations de commande à envoyer
 function validOrder(){
-    // verif si le panier n'est pas vide
-    if(cart.length === 0){
-        document.getElementById('order').disabled = "true";
-        errorMsgOrder('Impossible de passer une commande, votre panier est vide ! <br> <a href=../html/index.html> retour à la boutique </a>');
-    }
+    document.getElementById('order').disabled = true;
+    document.querySelector('.cart__order__form').addEventListener("change", function(event){
+        // verif si le panier n'est pas vide
+        if(cart.length === 0 || firstName.value.length === 0 || lastName.value.length === 0 || address.value.length === 0 || city.value.length === 0 || email.value.length === 0){
+            if(document.querySelector('.errorInputValue')){
+                return
+            }
+            else{
+                document.getElementById('order').disabled = true;
+                errorMsgOrder('Impossible de passer une commande, vérifier les informations de votre commande !');
+            }
+        }
+        
 
-    // verif des valeurs saisies dans le formulaire
-    else{
-        document.querySelector('.cart__order__form').addEventListener("change", function(event){
+        // verif des valeurs saisies dans le formulaire
+        else{
+            event.stopPropagation();
             if(errorsInput.length > 0){
-                event.stopPropagation();
                 if(document.querySelector('.errorInputValue')){
                     return
                 }
                 else{
-                    document.getElementById('order').disabled = "true";
-                    errorMsgOrder ('Impossible de passer une commande, un ou plusieurs champ du formulaire est incorrect');  
+                    document.getElementById('order').disabled = true;
+                    errorMsgOrder ('Impossible de passer une commande, vérifier les informations de votre commande !');  
                 } 
             }
             else{
                 let cartOrder = document.querySelector('.cart');
                 if(document.querySelector('.errorInputValue')){
                     cartOrder.removeChild(document.querySelector('.errorInputValue'));
+                    document.getElementById('order').disabled = false;
                 }
-                document.getElementById('order').disabled = "false";
-            }
-        })   
-    }    
+            }   
+        }
+        event.stopPropagation();    
+    })
 }
+
 
 validOrder();
 
@@ -323,39 +332,45 @@ validOrder();
 
 
 // Envoi de la commande
-let submitOrder = document.querySelector('.cart__order__form');
-submitOrder.addEventListener("submit", function(event){
-    event.preventDefault();
+function sendOrder(){
+    let submitOrder = document.querySelector('.cart__order__form');
+    submitOrder.addEventListener("submit", function(event){
+        if(cart.length > 0 && errorsInput.length === 0){
 
-    // génère l'objet contact à envoyer à l'API
-    let contact = new contactInfo(firstName.value, lastName.value, address.value, city.value, email.value);
-    
-    // génère l'ID des produits dans le panier
-    let products = [];
-    for(let i = 0; i < cart.length; i++){
-        products.push(cart[i].id);
-    }
+            // génère l'objet contact à envoyer à l'API
+            let contact = new contactInfo(firstName.value, lastName.value, address.value, city.value, email.value);
+            
+            // génère l'ID des produits dans le panier
+            let products = [];
+            for(let i = 0; i < cart.length; i++){
+                products.push(cart[i].id);
+            }
 
-    // La requête POST envoyer
-    fetch("http://localhost:3000/api/products/order", {  
-        method: "POST",
-        headers: {
-            'Accept': 'application/json', 
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({contact, products})
-    })
-    .then(function (res) {
-        if(res.ok){
-            return res.json();
+            // La requête POST envoyer
+            fetch("http://localhost:3000/api/products/order", {  
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json', 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({contact, products})
+            })
+            .then(function (res) {
+                if(res.ok){
+                    return res.json();
+                }
+            })
+            .then (function(value){
+                localStorage.clear();
+                let idOrder = value.orderId;
+                document.location.href = "../html/confirmation.html" + "?id=" + idOrder;
+            })
+            .catch(function(error){
+                console.log(error);
+            })
         }
+        event.preventDefault();
     })
-    .then (function(value){
-        localStorage.clear();
-        let idOrder = value.orderId;
-        document.location.href = "../html/confirmation.html" + "?id=" + idOrder;
-    })
-    .catch(function(error){
-        console.log(error);
-    })
-})
+}
+
+sendOrder();
